@@ -1,0 +1,23 @@
+spring:
+  application:
+    name: auth-service
+  profiles:
+    default: dev
+  datasource:
+    url: jdbc:h2:mem:authdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+app:
+  # Shared with api-gateway: auth-service signs, api-gateway verifies. Same
+  # key in both modules; dev default aligns with the gateway default.
+  jwt-secret: ${JWT_SECRET:9a4f2c8d3b7a1e5f2g8h9i0j1k2l3m4n5o6p7q8r9s0t}
+  jwt-expiration-ms: 86400000
+
+server:
+  port: 8087

@@ -1,0 +1,7 @@
+spring:
+  config:
+    import: optional:file:.env[.properties]
+  application:
+    name: airline-system
+server:
+  port: 8090
