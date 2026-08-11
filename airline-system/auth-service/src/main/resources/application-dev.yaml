@@ -4,6 +4,10 @@ spring:
     driver-class-name: org.h2.Driver
     username: sa
     password: ""
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
   h2:
     console:
       enabled: true
@@ -13,7 +17,5 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
-  flyway:
-    enabled: false
 server:
   port: 8087
