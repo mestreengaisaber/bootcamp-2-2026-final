@@ -1,0 +1,40 @@
+spring:
+  config:
+    import: optional:file:.env[.properties]
+  application:
+    name: api--gateway
+  cloud:
+    gateway:
+      server:
+        webmvc:
+          routes:
+            - id: auth-service
+              uri: http://localhost:8087
+              predicates:
+                - Path=/api/v1/auth/**
+            - id: flight-service
+              uri: http://localhost:8085
+              predicates:
+                - Path=/api/v1/flights/**
+            - id: booking-service
+              uri: http://localhost:8082
+              predicates:
+                - Path=/api/v1/bookings/**
+            - id: payment-service
+              uri: http://localhost:8083
+              predicates:
+                - Path=/api/v1/payments/**
+            - id: checkin-service
+              uri: http://localhost:8084
+              predicates:
+                - Path=/api/v1/checkins/**
+            - id: notification-service
+              uri: http://localhost:8085
+              predicates:
+                - Path=/api/v1/notifications/**
+
+app:
+  jwt-secret: ${JWT_SECRET:9a4f2c8d3b7a1e5f2g8h9i0j1k2l3m4n5o6p7q8r9s0t}
+
+server:
+  port: 8080
