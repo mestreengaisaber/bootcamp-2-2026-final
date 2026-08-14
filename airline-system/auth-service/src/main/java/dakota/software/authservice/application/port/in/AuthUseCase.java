@@ -6,6 +6,5 @@ import dakota.software.authservice.application.command.RegisterUserCommand;
 public interface AuthUseCase {
 
     String register(RegisterUserCommand command);
-
     String login(LoginUserCommand command);
 }
