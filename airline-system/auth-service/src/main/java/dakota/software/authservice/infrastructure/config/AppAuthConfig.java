@@ -1,4 +1,4 @@
-package dakota.software.authservice.config;
+package dakota.software.authservice.infrastructure.config;
 
 import dakota.software.authservice.application.port.in.AuthUseCase;
 import dakota.software.authservice.application.port.out.JwtPort;

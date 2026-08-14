@@ -1,3 +1,5 @@
 spring:
   application:
     name: flight-service
+server:
+  port: 8086
