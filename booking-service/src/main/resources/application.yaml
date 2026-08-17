@@ -1,14 +1,39 @@
 spring:
   application:
     name: booking-service
+  profiles:
+    default: dev
   datasource:
     url: jdbc:h2:mem:bookingdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
     driver-class-name: org.h2.Driver
     username: sa
     password: ""
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        generate_statistics: true
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
   h2:
     console:
       enabled: true
       path: /h2-console
+
+logging:
+  level:
+    org.hibernate: DEBUG
+
+app:
+  # Shared with auth-service and api-gateway: auth-service signs, gateway and
+  # services verify. Same key in all modules.
+  jwt-secret: ${JWT_SECRET:9a4f2c8d3b7a1e5f2g8h9i0j1k2l3m4n5o6p7q8r9s0t}
+
 server:
   port: 8082
