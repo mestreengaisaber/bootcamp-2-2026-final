@@ -18,15 +18,15 @@ public record FlightResponse(Long id,
 
     public static FlightResponse from(Flight flight) {
         return new FlightResponse(
-                flight.getId(),
-                flight.getFlightNumber(),
-                flight.getOrigin().getCode(),
-                flight.getOrigin().getCity(),
-                flight.getDestination().getCode(),
-                flight.getDestination().getCity(),
-                flight.getDepartureAt(),
-                flight.getArrivalAt(),
-                flight.getPrice(),
-                flight.getSeatInventory().getAvailableSeats());
+                flight.id(),
+                flight.flightNumber(),
+                flight.origin().code(),
+                flight.origin().city(),
+                flight.destination().code(),
+                flight.destination().city(),
+                flight.departureAt(),
+                flight.arrivalAt(),
+                flight.price(),
+                flight.seatInventory().getAvailableSeats());
     }
 }

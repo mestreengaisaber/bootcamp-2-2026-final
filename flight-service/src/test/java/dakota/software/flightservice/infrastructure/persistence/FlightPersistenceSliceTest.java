@@ -51,7 +51,7 @@ class FlightPersistenceSliceTest {
 
         List<Flight> result = adapter.findByDepartureDate(day, day.atStartOfDay().minusHours(1));
 
-        assertThat(result).extracting(Flight::getFlightNumber)
+        assertThat(result).extracting(Flight::flightNumber)
                 .containsExactlyInAnyOrder("IB1", "IB2");
     }
 
@@ -63,7 +63,7 @@ class FlightPersistenceSliceTest {
 
         List<Flight> result = adapter.findByDepartureDate(day, day.atTime(7, 0));
 
-        assertThat(result).extracting(Flight::getFlightNumber).containsExactly("IB2");
+        assertThat(result).extracting(Flight::flightNumber).containsExactly("IB2");
     }
 
     @Test
@@ -73,7 +73,7 @@ class FlightPersistenceSliceTest {
 
         List<Flight> result = adapter.findByOriginAndDestination("MAD", "BCN", LocalDateTime.now());
 
-        assertThat(result).extracting(Flight::getFlightNumber).containsExactly("IB2");
+        assertThat(result).extracting(Flight::flightNumber).containsExactly("IB2");
     }
 
     @Test
@@ -83,9 +83,9 @@ class FlightPersistenceSliceTest {
         List<Flight> result = adapter.findByOriginAndDestination("MAD", "BCN", LocalDateTime.now());
 
         assertThat(result).singleElement().satisfies(flight -> {
-            assertThat(flight.getOrigin().getCode()).isEqualTo("MAD");
-            assertThat(flight.getDestination().getCity()).isEqualTo("Barcelona");
-            assertThat(flight.getSeatInventory().getAvailableSeats()).isEqualTo(150);
+            assertThat(flight.origin().code()).isEqualTo("MAD");
+            assertThat(flight.destination().city()).isEqualTo("Barcelona");
+            assertThat(flight.seatInventory().getAvailableSeats()).isEqualTo(150);
         });
     }
 

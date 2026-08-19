@@ -20,22 +20,14 @@ public class FlightController {
     private final FlightUsecase flightUsecase;
 
     public FlightController(FlightUsecase flightUsecase) {
+
         this.flightUsecase = flightUsecase;
     }
 
     @GetMapping
     public List<FlightResponse> search(@Valid @ModelAttribute FlightSearchRequest request) {
         SearchCommand command = new SearchCommand(request.origin(), request.destination(), request.departureDate());
-
-        List<Flight> flights;
-        if (request.origin() != null && request.destination() != null) {
-            flights = flightUsecase.searchByOriginDestinationUseCase(command);
-        } else if (request.departureDate() != null) {
-            flights = flightUsecase.searchByDateUseCase(command);
-        } else {
-            flights = List.of();
-        }
-
+        List<Flight> flights = flightUsecase.searchByFilters(command);
         return flights.stream().map(FlightResponse::from).toList();
     }
 }

@@ -57,4 +57,8 @@ public class SeatInventoryEntity {
     public Integer getAvailableSeats() {
         return availableSeats;
     }
+
+    void updateAvailableSeats(int availableSeats) {
+        this.availableSeats = availableSeats;
+    }
 }

@@ -52,10 +52,10 @@ class AuthServiceTest {
         ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
         verify(userRepositoryPort).save(captor.capture());
         User saved = captor.getValue();
-        assertEquals("ana", saved.getUsername());
-        assertEquals("encoded-password", saved.getPassword());
-        assertEquals("USER", saved.getRole());
-        assertEquals("ana@test.com", saved.getEmail());
+        assertEquals("ana", saved.username());
+        assertEquals("encoded-password", saved.password());
+        assertEquals("USER", saved.role());
+        assertEquals("ana@test.com", saved.email());
     }
 
     @Test
