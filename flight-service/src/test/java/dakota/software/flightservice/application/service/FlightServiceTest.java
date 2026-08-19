@@ -5,6 +5,7 @@ import dakota.software.flightservice.application.port.out.FlightRepositoryPort;
 import dakota.software.flightservice.domain.Airport;
 import dakota.software.flightservice.domain.Flight;
 import dakota.software.flightservice.domain.SeatInventory;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
@@ -13,6 +14,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
 class FlightServiceTest {
@@ -28,7 +30,13 @@ class FlightServiceTest {
             new BigDecimal("199.90"),
             new SeatInventory(180, 150));
 
-    private final FlightService service = new FlightService(new FakeFlightRepository());
+    private final FakeFlightRepository repository = new FakeFlightRepository();
+    private final FlightService service = new FlightService(repository);
+
+    @BeforeEach
+    void setUp() {
+        repository.reset();
+    }
 
     @Test
     void searchByDateUseCaseDelegatesToRepository() {
@@ -37,7 +45,7 @@ class FlightServiceTest {
         List<Flight> result = service.searchByDateUseCase(command);
 
         assertEquals(1, result.size());
-        assertEquals("IB1234", result.get(0).getFlightNumber());
+        assertEquals("IB1234", result.get(0).flightNumber());
     }
 
     @Test
@@ -47,10 +55,30 @@ class FlightServiceTest {
         List<Flight> result = service.searchByOriginDestinationUseCase(command);
 
         assertEquals(1, result.size());
-        assertEquals("IB1234", result.get(0).getFlightNumber());
+        assertEquals("IB1234", result.get(0).flightNumber());
+    }
+
+    @Test
+    void reserveSeatsUseCaseDecrementsAvailableSeats() {
+        service.reserveSeatsUseCase(1L, 5);
+
+        assertEquals(145, repository.storedInventory.getAvailableSeats());
+    }
+
+    @Test
+    void reserveSeatsUseCaseThrowsWhenNotEnoughSeats() {
+        assertThrows(IllegalStateException.class, () -> service.reserveSeatsUseCase(1L, 151));
+
+        assertEquals(150, repository.storedInventory.getAvailableSeats());
     }
 
     private static final class FakeFlightRepository implements FlightRepositoryPort {
+
+        private SeatInventory storedInventory;
+
+        void reset() {
+            storedInventory = new SeatInventory(180, 150);
+        }
 
         @Override
         public List<Flight> findByDepartureDate(LocalDate date, LocalDateTime from) {
@@ -60,6 +88,16 @@ class FlightServiceTest {
         @Override
         public List<Flight> findByOriginAndDestination(String originCode, String destinationCode, LocalDateTime from) {
             return List.of(FLIGHT);
+        }
+
+        @Override
+        public SeatInventory findSeatInventoryForUpdate(Long flightId) {
+            return storedInventory;
+        }
+
+        @Override
+        public void saveSeatInventory(Long flightId, SeatInventory seatInventory) {
+            storedInventory = seatInventory;
         }
     }
 }

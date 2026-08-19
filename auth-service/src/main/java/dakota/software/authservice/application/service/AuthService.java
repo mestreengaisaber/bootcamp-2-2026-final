@@ -46,9 +46,9 @@ public class AuthService implements AuthUseCase {
     @Override
     public String login(LoginUserCommand command) {
         Optional<User> user = userRepositoryPort.findByUsername(command.username());
-        if (user.isEmpty() || !passwordEncoderPort.matches(command.password(), user.get().getPassword())) {
+        if (user.isEmpty() || !passwordEncoderPort.matches(command.password(), user.get().password())) {
             throw new InvalidCredentialsException("Invalid username or password");
         }
-        return jwtPort.generateToken(user.get().getUsername(), user.get().getRole());
+        return jwtPort.generateToken(user.get().username(), user.get().role());
     }
 }

@@ -9,4 +9,10 @@ public interface FlightUsecase {
 
    List <Flight> searchByDateUseCase(SearchCommand command);
    List<Flight> searchByOriginDestinationUseCase(SearchCommand command);
+
+
+   List<Flight> searchByFilters(SearchCommand command);
+
+   //lock
+   void reserveSeatsUseCase(Long flightId, int seats);
 }

@@ -1,6 +1,7 @@
 package dakota.software.flightservice.infrastructure.persistence;
 
 import dakota.software.flightservice.application.port.out.FlightRepositoryPort;
+import dakota.software.flightservice.application.exception.SeatInventoryNotFoundException;
 import dakota.software.flightservice.domain.Airport;
 import dakota.software.flightservice.domain.Flight;
 import dakota.software.flightservice.domain.SeatInventory;
@@ -13,9 +14,12 @@ import java.util.List;
 public class FlightPersistenceAdapter implements FlightRepositoryPort {
 
     private final FlightJpaRepository flightJpaRepository;
+    private final SeatInventoryJpaRepository seatInventoryJpaRepository;
 
-    public FlightPersistenceAdapter(FlightJpaRepository flightJpaRepository) {
+    public FlightPersistenceAdapter(FlightJpaRepository flightJpaRepository,
+                                    SeatInventoryJpaRepository seatInventoryJpaRepository) {
         this.flightJpaRepository = flightJpaRepository;
+        this.seatInventoryJpaRepository = seatInventoryJpaRepository;
     }
 
     @Override
@@ -34,6 +38,21 @@ public class FlightPersistenceAdapter implements FlightRepositoryPort {
                 .map(this::toDomain)
                 .toList();
     }
+
+    @Override
+    public SeatInventory findSeatInventoryForUpdate(Long flightId) {
+        SeatInventoryEntity entity = seatInventoryJpaRepository.findByFlightIdWithLock(flightId)
+                .orElseThrow(() -> new SeatInventoryNotFoundException(flightId));
+        return toSeatInventory(entity);
+    }
+
+    @Override
+    public void saveSeatInventory(Long flightId, SeatInventory seatInventory) {
+        SeatInventoryEntity entity = seatInventoryJpaRepository.findByFlightId(flightId)
+                .orElseThrow(() -> new SeatInventoryNotFoundException(flightId));
+        entity.updateAvailableSeats(seatInventory.getAvailableSeats());
+    }
+
 
     //mapper
 
@@ -56,5 +75,9 @@ public class FlightPersistenceAdapter implements FlightRepositoryPort {
 
     private Airport toAirport(AirportEntity entity) {
         return new Airport(entity.getId(), entity.getCode(), entity.getName(), entity.getCity(), entity.getCountry());
+    }
+
+    private SeatInventory toSeatInventory(SeatInventoryEntity entity) {
+        return new SeatInventory(entity.getTotalSeats(), entity.getAvailableSeats());
     }
 }
