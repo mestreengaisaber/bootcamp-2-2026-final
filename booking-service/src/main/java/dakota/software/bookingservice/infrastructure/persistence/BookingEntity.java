@@ -38,6 +38,9 @@ public class BookingEntity {
     @Column(nullable = false)
     private BigDecimal amount;
 
+    @Column(name = "payment_method", nullable = false)
+    private String paymentMethod;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private BookingStatus status;
@@ -47,13 +50,22 @@ public class BookingEntity {
     }
 
     public BookingEntity(String passengerId, String passengerName, String passengerEmail,
-                         Long flightId, Integer seats, BigDecimal amount, BookingStatus status) {
+                         Long flightId, Integer seats, BigDecimal amount, String paymentMethod,
+                         BookingStatus status) {
+        this(null, passengerId, passengerName, passengerEmail, flightId, seats, amount, paymentMethod, status);
+    }
+
+    public BookingEntity(Long id, String passengerId, String passengerName, String passengerEmail,
+                         Long flightId, Integer seats, BigDecimal amount, String paymentMethod,
+                         BookingStatus status) {
+        this.id = id;
         this.passengerId = passengerId;
         this.passengerName = passengerName;
         this.passengerEmail = passengerEmail;
         this.flightId = flightId;
         this.seats = seats;
         this.amount = amount;
+        this.paymentMethod = paymentMethod;
         this.status = status;
     }
 
@@ -83,6 +95,10 @@ public class BookingEntity {
 
     public BigDecimal getAmount() {
         return amount;
+    }
+
+    public String getPaymentMethod() {
+        return paymentMethod;
     }
 
     public BookingStatus getStatus() {

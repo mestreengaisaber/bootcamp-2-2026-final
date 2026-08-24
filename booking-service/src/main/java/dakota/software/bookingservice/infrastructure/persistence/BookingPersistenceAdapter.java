@@ -3,6 +3,7 @@ package dakota.software.bookingservice.infrastructure.persistence;
 import dakota.software.bookingservice.application.port.out.BookingRepositoryPort;
 import dakota.software.bookingservice.domain.Booking;
 import dakota.software.bookingservice.domain.Passenger;
+import dakota.software.bookingservice.domain.PaymentMethod;
 
 import java.util.Optional;
 
@@ -27,12 +28,14 @@ public class BookingPersistenceAdapter implements BookingRepositoryPort {
 
     private BookingEntity toEntity(Booking booking) {
         return new BookingEntity(
+                booking.getId(),
                 booking.getPassenger().passengerId(),
                 booking.getPassenger().name(),
                 booking.getPassenger().email(),
                 booking.getFlightId(),
                 booking.getSeats(),
                 booking.getAmount(),
+                booking.getPaymentMethod().name(),
                 booking.getStatus());
     }
 
@@ -47,6 +50,7 @@ public class BookingPersistenceAdapter implements BookingRepositoryPort {
                 entity.getFlightId(),
                 entity.getSeats(),
                 entity.getAmount(),
+                PaymentMethod.valueOf(entity.getPaymentMethod()),
                 entity.getStatus());
     }
 }

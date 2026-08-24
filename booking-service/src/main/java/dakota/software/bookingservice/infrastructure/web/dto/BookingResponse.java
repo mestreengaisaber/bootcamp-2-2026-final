@@ -12,6 +12,7 @@ public record BookingResponse(Long id,
                               Long flightId,
                               int seats,
                               BigDecimal amount,
+                              String paymentMethod,
                               BookingStatus status) {
 
     public static BookingResponse from(Booking booking) {
@@ -23,6 +24,7 @@ public record BookingResponse(Long id,
                 booking.getFlightId(),
                 booking.getSeats(),
                 booking.getAmount(),
+                booking.getPaymentMethod().name(),
                 booking.getStatus());
     }
 }

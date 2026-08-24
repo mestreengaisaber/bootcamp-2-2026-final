@@ -3,18 +3,13 @@ package dakota.software.bookingservice.infrastructure.web;
 import dakota.software.bookingservice.application.command.CreateBookingCommand;
 import dakota.software.bookingservice.application.port.in.BookingUsecase;
 import dakota.software.bookingservice.domain.Booking;
+import dakota.software.bookingservice.domain.PaymentMethod;
 import dakota.software.bookingservice.infrastructure.web.dto.BookingResponse;
 import dakota.software.bookingservice.infrastructure.web.dto.CreateBookingRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/bookings")
@@ -27,19 +22,27 @@ public class BookingController {
     }
 
     @PostMapping
-    public ResponseEntity<BookingResponse> create(
+    public ResponseEntity<?> create(
             @Valid @RequestBody CreateBookingRequest request,
-            Authentication authentication) {
+            @RequestHeader(value = "X-User-ID", required = false) String userId) {
 
-        String passengerId = authentication.getName();
+        // El String del transporte se traduce a enum del dominio aquí (borde web).
+        // Un valor no reconocido es un error del cliente: 400, no 500.
+        PaymentMethod paymentMethod;
+        try {
+            paymentMethod = PaymentMethod.fromString(request.paymentMethod());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
 
         CreateBookingCommand command = new CreateBookingCommand(
-                passengerId,
+                userId,
                 request.flightId(),
                 request.seats(),
                 request.amount(),
                 request.passengerName(),
-                request.passengerEmail());
+                request.passengerEmail(),
+                paymentMethod);
 
         Booking booking = bookingUsecase.createBookingUseCase(command);
         return ResponseEntity.status(HttpStatus.CREATED).body(BookingResponse.from(booking));

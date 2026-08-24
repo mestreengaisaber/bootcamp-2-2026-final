@@ -1,6 +1,7 @@
 package dakota.software.apigateway.config;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.gateway.server.mvc.filter.BeforeFilterFunctions;
 import org.springframework.cloud.gateway.server.mvc.handler.GatewayRouterFunctions;
 import org.springframework.cloud.gateway.server.mvc.handler.HandlerFunctions;
 import org.springframework.context.annotation.Bean;
@@ -99,6 +100,11 @@ public class SecurityConfig {
         return GatewayRouterFunctions.route("bookings")
                 .route(RequestPredicates.path("/api/v1/bookings/**"),
                         HandlerFunctions.http())
+                // http() without a URI resolves the target from the
+                // GATEWAY_REQUEST_URL_ATTR request attribute, which is only
+                // populated by the uri() before-filter. Without it, routing
+                // fails at runtime with 500.
+                .before(BeforeFilterFunctions.uri("http://localhost:8082"))
                 .before(request -> {
 
                     JwtAuthenticationToken auth =
