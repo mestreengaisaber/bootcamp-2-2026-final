@@ -9,19 +9,22 @@ public class Booking {
     private final Long flightId;
     private final int seats;
     private final BigDecimal amount;
+    private final PaymentMethod paymentMethod;
     private BookingStatus status;
 
-    public Booking(Passenger passenger, Long flightId, int seats, BigDecimal amount) {
-        validate(passenger, flightId, seats, amount);
+    public Booking(Passenger passenger, Long flightId, int seats, BigDecimal amount, PaymentMethod paymentMethod) {
+        validate(passenger, flightId, seats, amount, paymentMethod);
         this.passenger = passenger;
         this.flightId = flightId;
         this.seats = seats;
         this.amount = amount;
+        this.paymentMethod = paymentMethod;
         this.status = BookingStatus.PENDING;
     }
 
-    public Booking(Long id, Passenger passenger, Long flightId, int seats, BigDecimal amount, BookingStatus status) {
-        validate(passenger, flightId, seats, amount);
+    public Booking(Long id, Passenger passenger, Long flightId, int seats, BigDecimal amount,
+                   PaymentMethod paymentMethod, BookingStatus status) {
+        validate(passenger, flightId, seats, amount, paymentMethod);
         if (status == null) {
             throw new IllegalArgumentException("Status must not be null");
         }
@@ -30,10 +33,11 @@ public class Booking {
         this.flightId = flightId;
         this.seats = seats;
         this.amount = amount;
+        this.paymentMethod = paymentMethod;
         this.status = status;
     }
 
-    private static void validate(Passenger passenger, Long flightId, int seats, BigDecimal amount) {
+    private static void validate(Passenger passenger, Long flightId, int seats, BigDecimal amount, PaymentMethod paymentMethod) {
         if (passenger == null) {
             throw new IllegalArgumentException("Passenger must not be null");
         }
@@ -45,6 +49,11 @@ public class Booking {
         }
         if (amount == null || amount.compareTo(BigDecimal.ZERO) < 0) {
             throw new IllegalArgumentException("Amount must not be null and must be >= 0");
+        }
+        // Con el enum la invariante es de tipo: solo existen STRIPE, PAYPAL y MOCK,
+        // así que basta con el chequeo de nulidad.
+        if (paymentMethod == null) {
+            throw new IllegalArgumentException("PaymentMethod must not be null");
         }
     }
 
@@ -89,6 +98,10 @@ public class Booking {
 
     public BigDecimal getAmount() {
         return amount;
+    }
+
+    public PaymentMethod getPaymentMethod() {
+        return paymentMethod;
     }
 
     public BookingStatus getStatus() {

@@ -1,0 +1,22 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['prometheus:9090']
+
+  # Los micros corren en el host (localhost), no en contenedores:
+  # host.docker.internal resuelve desde Docker Desktop hacia la máquina host.
+  # Requieren actuator con /actuator/prometheus (micrometer-registry-prometheus).
+  - job_name: 'microservices'
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets:
+          - 'host.docker.internal:8080'   # api-gateway
+          - 'host.docker.internal:8082'   # booking-service
+          - 'host.docker.internal:8083'   # payment-service
+          - 'host.docker.internal:8084'   # checkin-service
+          - 'host.docker.internal:8086'   # flight-service
+          - 'host.docker.internal:8087'   # auth-service

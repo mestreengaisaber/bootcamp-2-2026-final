@@ -12,5 +12,6 @@ public record CreateBookingRequest(
         @NotNull @Positive Integer seats,
         @NotNull @DecimalMin("0.00") BigDecimal amount,
         @NotBlank String passengerName,
-        @NotBlank String passengerEmail) {
+        @NotBlank String passengerEmail,
+        @NotBlank String paymentMethod) {
 }

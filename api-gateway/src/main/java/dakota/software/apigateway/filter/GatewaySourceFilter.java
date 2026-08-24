@@ -13,7 +13,7 @@ import java.io.IOException;
 
 /**
  * Filtro global que añade el header X-Gateway-Source a todas las respuestas
- * que pasan por el Gateway, indicando que provienen de api--gateway.
+ * que pasan por el Gateway, indicando que provienen de api-gateway.
  */
 @Component
 @Order(-1)
@@ -23,7 +23,7 @@ public class GatewaySourceFilter implements Filter {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
         HttpServletResponse httpResponse = (HttpServletResponse) response;
-        httpResponse.setHeader("X-Gateway-Source", "api--gateway");
+        httpResponse.setHeader("X-Gateway-Source", "api-gateway");
         chain.doFilter(request, response);
     }
 }

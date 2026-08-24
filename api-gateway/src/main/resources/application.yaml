@@ -2,34 +2,38 @@ spring:
   config:
     import: optional:file:.env[.properties]
   application:
-    name: api--gateway
+    name: api-gateway
   cloud:
     gateway:
       server:
         webmvc:
           routes:
             - id: auth-service
-              uri: http://localhost:8087
+              uri: ${AUTH_SERVICE_URI:http://localhost:8087}
               predicates:
                 - Path=/api/v1/auth/**
             - id: flight-service
-              uri: http://localhost:8086
+              uri: ${FLIGHT_SERVICE_URI:http://localhost:8086}
               predicates:
                 - Path=/api/v1/flights/**
-            - id: booking-service
-              uri: http://localhost:8082
-              predicates:
-                - Path=/api/v1/bookings/**
+            # booking-service route moved to SecurityConfig#routes() (Java bean):
+            # that bean is the only source for this path because it also injects
+            # X-User-Id from the JWT, which cannot be done from yaml. Keeping both
+            # would leave two competing RouterFunctions and an unpredictable winner.
+            # - id: booking-service
+            #   uri: ${BOOKING_SERVICE_URI:http://localhost:8082}
+            #   predicates:
+            #     - Path=/api/v1/bookings/**
             - id: payment-service
-              uri: http://localhost:8083
+              uri: ${PAYMENT_SERVICE_URI:http://localhost:8083}
               predicates:
                 - Path=/api/v1/payments/**
             - id: checkin-service
-              uri: http://localhost:8084
+              uri: ${CHECKIN_SERVICE_URI:http://localhost:8084}
               predicates:
                 - Path=/api/v1/checkins/**
             - id: notification-service
-              uri: http://localhost:8085
+              uri: ${NOTIFICATION_SERVICE_URI:http://localhost:8085}
               predicates:
                 - Path=/api/v1/notifications/**
 

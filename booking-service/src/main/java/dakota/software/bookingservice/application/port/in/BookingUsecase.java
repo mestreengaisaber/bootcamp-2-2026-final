@@ -6,4 +6,5 @@ import dakota.software.bookingservice.domain.Booking;
 public interface BookingUsecase {
     Booking createBookingUseCase(CreateBookingCommand  createBookingCommand);
     Booking getBookingById(Long id);
+    Booking applyPaymentResult(Long bookingId, String status, String reason, String causationId);
 }

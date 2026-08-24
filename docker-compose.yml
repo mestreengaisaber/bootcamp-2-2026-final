@@ -24,6 +24,8 @@ services:
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_LOG_DIRS: /tmp/kraft-combined-logs
       CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
+    networks:
+      - observability
 
   kafdrop:
     image: obsidiandynamics/kafdrop:latest
@@ -35,9 +37,12 @@ services:
       JVM_OPTS: "-Xms32M -Xmx64M"
     ports:
       - "19000:9000"
+    networks:
+      - observability
 
   db:
     image: postgres:17
+    container_name: db
     environment:
       POSTGRES_DB: bootcamp
       POSTGRES_USER: postgres
@@ -46,31 +51,189 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+      # Una BD/schema por micro: el init script crea bootcamp_<servicio>.
+      - ./db-init:/docker-entrypoint-initdb.d:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s
       timeout: 5s
       retries: 10
+    networks:
+      - observability
 
-  # app:
-  #   build: .
-  #   ports:
-  #     - "8081:8081"
-  #   environment:
-  #     SPRING_PROFILES_ACTIVE: prod
-  #     SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/bootcamp
-  #     SPRING_DATASOURCE_USERNAME: postgres
-  #     SPRING_DATASOURCE_PASSWORD: postgres
-  #     SPRING_SERVER_PORT: 8081
-  #   depends_on:
-  #     db:
-  #       condition: service_healthy
-  #   restart: on-failure
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+    networks:
+      - observability
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+    depends_on:
+      - prometheus
+    networks:
+      - observability
+
+  jaeger:
+    image: jaegertracing/all-in-one:1.75.0
+    container_name: jaeger
+    restart: unless-stopped
+    ports:
+      - "16686:16686"   # UI
+      - "4317:4317"     # OTLP gRPC
+      - "4318:4318"     # OTLP HTTP
+      - "5778:5778"     # Sampling endpoint
+      - "9411:9411"     # Zipkin
+    environment:
+      COLLECTOR_OTLP_ENABLED: "true"
+    networks:
+      - observability
+
+  loki:
+    image: grafana/loki:2.9.0
+    container_name: loki
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+    volumes:
+      - ./loki-config.yml:/etc/loki/local-config.yaml:ro
+      - loki_data:/loki
+    networks:
+      - observability
+
+  promtail:
+    image: grafana/promtail:2.9.0
+    container_name: promtail
+    volumes:
+      - ./promtail-config.yml:/etc/promtail/config.yml:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro  # logs Docker
+      - /var/run/docker.sock:/var/run/docker.sock                 # metadata Docker
+    networks:
+      - observability
+    depends_on:
+      - loki
+
+  api-gateway:
+    build: ./api-gateway
+    container_name: api-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      AUTH_SERVICE_URI: http://auth-service:8087
+      FLIGHT_SERVICE_URI: http://flight-service:8086
+      BOOKING_SERVICE_URI: http://booking-service:8082
+      PAYMENT_SERVICE_URI: http://payment-service:8083
+      CHECKIN_SERVICE_URI: http://checkin-service:8084
+      NOTIFICATION_SERVICE_URI: http://notification-service:8085
+    depends_on:
+      - auth-service
+      - booking-service
+      - flight-service
+      - payment-service
+      - checkin-service
+      - notification-service
+    networks:
+      - observability
+
+  auth-service:
+    build: ./auth-service
+    container_name: auth-service
+    ports:
+      - "8087:8087"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      DB_HOST: db
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - observability
+
+  booking-service:
+    build: ./booking-service
+    container_name: booking-service
+    ports:
+      - "8082:8082"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      DB_HOST: db
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: broker:29092
+    depends_on:
+      db:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+    networks:
+      - observability
+
+  flight-service:
+    build: ./flight-service
+    container_name: flight-service
+    ports:
+      - "8086:8086"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      DB_HOST: db
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - observability
+
+  payment-service:
+    build: ./payment-service
+    container_name: payment-service
+    ports:
+      - "8083:8083"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      DB_HOST: db
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: broker:29092
+    depends_on:
+      db:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+    networks:
+      - observability
+
+  checkin-service:
+    build: ./checkin-service
+    container_name: checkin-service
+    ports:
+      - "8084:8084"
+    networks:
+      - observability
+
+  notification-service:
+    build: ./notification-service
+    container_name: notification-service
+    ports:
+      - "8085:8085"
+    networks:
+      - observability
 
 volumes:
   pgdata:
+  grafana-data:
+  loki_data:
+
+networks:
+  observability:
+    driver: bridge
 
 
-#docker compose up --build -d
+#docker compose up -d --build
 #docker compose down
-# docker compose logs -f app
+# docker compose logs -f api-gateway
