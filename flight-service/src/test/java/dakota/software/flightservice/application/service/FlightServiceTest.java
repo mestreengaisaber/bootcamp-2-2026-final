@@ -42,7 +42,7 @@ class FlightServiceTest {
     void searchByDateUseCaseDelegatesToRepository() {
         SearchCommand command = new SearchCommand(null, null, LocalDate.of(2026, 8, 20));
 
-        List<Flight> result = service.searchByDateUseCase(command);
+        List<Flight> result = service.searchByDate(command);
 
         assertEquals(1, result.size());
         assertEquals("IB1234", result.get(0).flightNumber());
@@ -52,7 +52,7 @@ class FlightServiceTest {
     void searchByOriginDestinationUseCaseDelegatesToRepository() {
         SearchCommand command = new SearchCommand("MAD", "BCN", null);
 
-        List<Flight> result = service.searchByOriginDestinationUseCase(command);
+        List<Flight> result = service.searchByOriginDestination(command);
 
         assertEquals(1, result.size());
         assertEquals("IB1234", result.get(0).flightNumber());
@@ -60,14 +60,14 @@ class FlightServiceTest {
 
     @Test
     void reserveSeatsUseCaseDecrementsAvailableSeats() {
-        service.reserveSeatsUseCase(1L, 5);
+        service.reserve(1L, 5);
 
         assertEquals(145, repository.storedInventory.getAvailableSeats());
     }
 
     @Test
     void reserveSeatsUseCaseThrowsWhenNotEnoughSeats() {
-        assertThrows(IllegalStateException.class, () -> service.reserveSeatsUseCase(1L, 151));
+        assertThrows(IllegalStateException.class, () -> service.reserve(1L, 151));
 
         assertEquals(150, repository.storedInventory.getAvailableSeats());
     }

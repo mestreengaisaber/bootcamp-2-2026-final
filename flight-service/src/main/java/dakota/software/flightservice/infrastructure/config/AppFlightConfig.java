@@ -1,6 +1,6 @@
 package dakota.software.flightservice.infrastructure.config;
 
-import dakota.software.flightservice.application.port.in.FlightUsecase;
+import dakota.software.flightservice.application.port.in.GetFlightsUseCase;
 import dakota.software.flightservice.application.port.out.FlightRepositoryPort;
 import dakota.software.flightservice.application.service.FlightService;
 import dakota.software.flightservice.infrastructure.persistence.FlightJpaRepository;
@@ -20,7 +20,7 @@ public class AppFlightConfig {
     }
 
     @Bean
-    public FlightUsecase flightUsecase(FlightRepositoryPort flightRepositoryPort) {
+    public GetFlightsUseCase flightUsecase(FlightRepositoryPort flightRepositoryPort) {
         return new FlightService(flightRepositoryPort);
     }
 }
