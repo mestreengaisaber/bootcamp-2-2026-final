@@ -72,6 +72,20 @@ class FlightServiceTest {
         assertEquals(150, repository.storedInventory.getAvailableSeats());
     }
 
+    @Test
+    void releaseSeatsUseCaseIncrementsAvailableSeats() {
+        service.release(1L, 5);
+
+        assertEquals(155, repository.storedInventory.getAvailableSeats());
+    }
+
+    @Test
+    void releaseSeatsUseCaseThrowsWhenExceedsTotal() {
+        assertThrows(IllegalStateException.class, () -> service.release(1L, 31));
+
+        assertEquals(150, repository.storedInventory.getAvailableSeats());
+    }
+
     private static final class FakeFlightRepository implements FlightRepositoryPort {
 
         private SeatInventory storedInventory;

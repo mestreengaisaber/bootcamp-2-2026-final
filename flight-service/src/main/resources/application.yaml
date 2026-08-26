@@ -24,6 +24,18 @@ spring:
     console:
       enabled: true
       path: /h2-console
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: flight-group
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        # OJO: sin spring.json.value.default.type aqui. Los productores del proyecto
+        # (OutboxRelay envia JSON plano) no anaden cabeceras de tipo, y flight consume
+        # DOS tipos (booking.created y booking.cancelled). El default.type se fija
+        # POR-LISTENER via la propiedad 'properties' de @KafkaListener (paso listeners).
+        spring.json.trusted.packages: "*"
 
 server:
   port: 8086

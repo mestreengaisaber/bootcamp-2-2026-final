@@ -185,9 +185,13 @@ services:
     environment:
       SPRING_PROFILES_ACTIVE: prod
       DB_HOST: db
+      # Consumidor Kafka (booking.created / booking.cancelled) igual que booking/payment
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: broker:29092
     depends_on:
       db:
         condition: service_healthy
+      kafka:
+        condition: service_started
     networks:
       - observability
 

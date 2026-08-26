@@ -2,6 +2,7 @@ package dakota.software.flightservice.application.service;
 
 import dakota.software.flightservice.application.command.SearchCommand;
 import dakota.software.flightservice.application.port.in.GetFlightsUseCase;
+import dakota.software.flightservice.application.port.in.ReleaseSeatsUseCase;
 import dakota.software.flightservice.application.port.in.ReserveSeatsUseCase;
 import dakota.software.flightservice.application.port.out.FlightRepositoryPort;
 import dakota.software.flightservice.domain.Flight;
@@ -12,7 +13,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 
-public class FlightService implements GetFlightsUseCase, ReserveSeatsUseCase {
+public class FlightService implements GetFlightsUseCase, ReserveSeatsUseCase, ReleaseSeatsUseCase {
 
     private final FlightRepositoryPort flightRepositoryPort;
 
@@ -48,9 +49,21 @@ public class FlightService implements GetFlightsUseCase, ReserveSeatsUseCase {
 
 
     @Override
+    @Transactional
     public void reserve(Long flightId, int seats) {
         SeatInventory inventory = flightRepositoryPort.findSeatInventoryForUpdate(flightId);
+        //utilizamos los metodos del dominio
         inventory.reserve(seats);
         flightRepositoryPort.saveSeatInventory(flightId, inventory);
+    }
+
+    @Override
+    @Transactional
+    public void release(Long flightId, int seats) {
+        SeatInventory inventory = flightRepositoryPort.findSeatInventoryForUpdate(flightId);
+        //utilizamos los metodos del dominio
+        inventory.release(seats);
+        flightRepositoryPort.saveSeatInventory(flightId, inventory);
+
     }
 }
