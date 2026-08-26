@@ -95,6 +95,13 @@ public class SecurityConfig {
         return converter;
     }
 
+    private final String bookingServiceUri;
+
+    public SecurityConfig(
+            @Value("${BOOKING_SERVICE_URI:http://localhost:8082}") final String bookingServiceUri) {
+        this.bookingServiceUri = bookingServiceUri;
+    }
+
     @Bean
     RouterFunction<ServerResponse> routes() {
         return GatewayRouterFunctions.route("bookings")
@@ -104,7 +111,10 @@ public class SecurityConfig {
                 // GATEWAY_REQUEST_URL_ATTR request attribute, which is only
                 // populated by the uri() before-filter. Without it, routing
                 // fails at runtime with 500.
-                .before(BeforeFilterFunctions.uri("http://localhost:8082"))
+                // Same property as the yaml routes: env var overrides the
+                // localhost default per environment (e.g. Docker sets
+                // BOOKING_SERVICE_URI=http://booking-service:8082).
+                .before(BeforeFilterFunctions.uri(bookingServiceUri))
                 .before(request -> {
 
                     JwtAuthenticationToken auth =

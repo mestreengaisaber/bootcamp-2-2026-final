@@ -73,4 +73,29 @@ class SeatInventoryLifecycleTest {
         assertThatThrownBy(() -> adapter.findSeatInventoryForUpdate(999L))
                 .isInstanceOf(SeatInventoryNotFoundException.class);
     }
+
+    @Test
+    void releaseSeatsAcquiresLockIncrementsAndPersists() {
+        SeatInventory inventory = adapter.findSeatInventoryForUpdate(flightId);
+        inventory.reserve(5);
+        adapter.saveSeatInventory(flightId, inventory);
+
+        SeatInventory toRelease = adapter.findSeatInventoryForUpdate(flightId);
+        toRelease.release(5);
+        adapter.saveSeatInventory(flightId, toRelease);
+
+        SeatInventory reloaded = adapter.findSeatInventoryForUpdate(flightId);
+        assertThat(reloaded.getAvailableSeats()).isEqualTo(150);
+    }
+
+    @Test
+    void releaseMoreThanTotalFailsCleanlyAndPersistsNothing() {
+        SeatInventory inventory = adapter.findSeatInventoryForUpdate(flightId);
+
+        assertThatThrownBy(() -> inventory.release(31))
+                .isInstanceOf(IllegalStateException.class);
+
+        SeatInventory reloaded = adapter.findSeatInventoryForUpdate(flightId);
+        assertThat(reloaded.getAvailableSeats()).isEqualTo(150);
+    }
 }
