@@ -1,13 +1,16 @@
 package dakota.software.paymentservice.application.event;
 
 import java.math.BigDecimal;
-import java.time.Instant;
 
 /**
  * Evento de integración: reserva creada (publicado por booking-service, consumido por payment-service).
  * Envelope + payload aplanados en un único record (mismo patrón que el proyecto de referencia).
  * passengerEmail y paymentMethod alimentan el procesamiento del pago (decisión 2026-08-19).
  * Contrato JSON documentado en la sección 6.2 del documento de arquitectura.
+ *
+ * createdAt es String (ISO-8601) en vez de Instant para evitar el problema de Jackson 2:
+ * "Java 8 date/time type java.time.Instant not supported by default".
+ * El JSON del evento ya trae el timestamp como string, así que no perdemos nada.
  */
 public record BookingCreatedEvent(
         String eventId,
@@ -24,7 +27,7 @@ public record BookingCreatedEvent(
         BigDecimal amount,
         String passengerEmail,
         String paymentMethod,
-        Instant createdAt
+        String createdAt
 ) {
 
     public static final String EVENT_TYPE = "BOOKING_CREATED";

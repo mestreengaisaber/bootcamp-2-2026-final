@@ -30,6 +30,7 @@ public class BookingService implements BookingUsecase {
     @Override
     @Transactional
     public Booking createBookingUseCase(CreateBookingCommand command) {
+        //se podrian generar clases mapper
         Passenger passenger = new Passenger(
                 command.passengerId(), command.passengerName(), command.passengerEmail());
         Booking booking = new Booking(
@@ -53,6 +54,7 @@ public class BookingService implements BookingUsecase {
 
         if (PaymentProcessedEvent.STATUS_APPROVED.equals(status)) {
             booking.confirm();
+            eventPublisher.bookingConfirmed(booking, causationId);
         } else if (PaymentProcessedEvent.STATUS_DECLINED.equals(status)) {
             booking.cancel();
             eventPublisher.bookingCancelled(booking, reason, causationId);

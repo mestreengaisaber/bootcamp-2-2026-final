@@ -217,6 +217,15 @@ services:
     container_name: checkin-service
     ports:
       - "8084:8084"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      DB_HOST: db
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: broker:29092
+    depends_on:
+      db:
+        condition: service_healthy
+      kafka:
+        condition: service_started
     networks:
       - observability
 

@@ -96,6 +96,14 @@
             <artifactId>jackson-databind</artifactId>
         </dependency>
 
+        <!-- Jackson JSR310: soporte para java.time.Instant en eventos Kafka.
+             Sin esto, JsonDeserializer falla con:
+             "Java 8 date/time type java.time.Instant not supported by default" -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-kafka-test</artifactId>
