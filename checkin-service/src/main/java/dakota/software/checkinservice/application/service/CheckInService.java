@@ -42,17 +42,19 @@ public class CheckInService implements PerformCheckInUseCase {
 
         //Crea CheckIn
         CheckIn checkIn = CheckIn.create(command.bookingId(), command.flightId(), command.passengerId());
-        //Crea la tarjeta embarque
-        BoardingPass boardingPass = generateBoardingPass(checkIn);
-        //lo da por completado cambiando el estado
-        checkIn.complete(boardingPass);
-
-        //guarda el objeto
+        //guarda el objeto PRIMERO para obtener el ID (generado por BD)
         CheckIn saved = checkInRepositoryPort.save(checkIn);
-        //publica el evento
-        checkInEventPublisherPort.checkInCompleted(saved);
+        //Crea la tarjeta de embarque DESPUES del save (necesita el ID para el seat number)
+        BoardingPass boardingPass = generateBoardingPass(saved);
+        //lo da por completado cambiando el estado
+        saved.complete(boardingPass);
 
-        return saved;
+        //guarda de nuevo con el boarding pass
+        CheckIn completed = checkInRepositoryPort.save(saved);
+        //publica el evento
+        checkInEventPublisherPort.checkInCompleted(completed);
+
+        return completed;
     }
 
     //boardingtime se tendra que pensar los 45 minutos o lo que sea .
