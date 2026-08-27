@@ -1,5 +1,39 @@
 spring:
   application:
     name: checkin-service
+
+  datasource:
+    url: jdbc:h2:mem:bootcamp_checkin;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+  flyway:
+    enabled: true
+
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+    consumer:
+      group-id: checkin-service
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.value.default.type: java.util.Map
+        spring.json.trusted.packages: "*"
+
 server:
   port: 8084

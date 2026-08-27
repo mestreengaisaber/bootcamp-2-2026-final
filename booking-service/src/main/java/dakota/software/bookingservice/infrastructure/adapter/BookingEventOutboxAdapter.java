@@ -1,6 +1,7 @@
 package dakota.software.bookingservice.infrastructure.adapter;
 
 import dakota.software.bookingservice.application.event.BookingCancelledEvent;
+import dakota.software.bookingservice.application.event.BookingConfirmedEvent;
 import dakota.software.bookingservice.application.event.BookingCreatedEvent;
 import dakota.software.bookingservice.application.port.out.BookingEventPublisherPort;
 import dakota.software.bookingservice.domain.Booking;
@@ -40,6 +41,14 @@ public class BookingEventOutboxAdapter implements BookingEventPublisherPort {
         saveOutbox(event.eventId(), event.aggregateId(), event.eventType(), event);
         log.info("Booking-cancelled event {} stored in outbox for booking {} (reason {})",
                 event.eventId(), booking.getId(), reason);
+    }
+
+    @Override
+    public void bookingConfirmed(Booking booking, String causationId) {
+        BookingConfirmedEvent event = BookingConfirmedEvent.from(booking, causationId);
+        saveOutbox(event.eventId(), event.aggregateId(), event.eventType(), event);
+        log.info("Booking-confirmed event {} stored in outbox for booking {}",
+                event.eventId(), booking.getId());
     }
 
     private void saveOutbox(String eventId, String aggregateId, String eventType, Object event) {

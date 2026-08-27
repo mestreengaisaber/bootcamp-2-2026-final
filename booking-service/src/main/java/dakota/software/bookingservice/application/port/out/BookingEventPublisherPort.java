@@ -13,4 +13,6 @@ public interface BookingEventPublisherPort {
     void bookingCreated(Booking booking);
 
     void bookingCancelled(Booking booking, String reason, String causationId);
+
+    void bookingConfirmed(Booking booking, String causationId);
 }

@@ -1,7 +1,6 @@
 package dakota.software.flightservice.application.event;
 
 import java.math.BigDecimal;
-import java.time.Instant;
 
 /**
  * Evento de integracion: reserva creada (publicado por booking-service,
@@ -25,7 +24,7 @@ public record BookingCreatedEvent(
         BigDecimal amount,
         String passengerEmail,
         String paymentMethod,
-        Instant createdAt
+        String createdAt
 ) {
 
     public static final String EVENT_TYPE = "BOOKING_CREATED";
