@@ -17,6 +17,6 @@ public class BookingValidationAdapter implements BookingValidationPort {
 
     @Override
     public boolean existsConfirmedBooking(Long bookingId) {
-        return processedEventRepository.existsByEventTypeAndBookingId("BOOKING_CONFIRMED", bookingId);
+        return !processedEventRepository.findByEventTypeAndBookingId("BOOKING_CONFIRMED", bookingId).isEmpty();
     }
 }

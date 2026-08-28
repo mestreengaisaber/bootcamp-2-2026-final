@@ -23,7 +23,7 @@ public class CheckInPersistenceAdapter implements CheckInRepositoryPort {
 
     @Override
     public Optional<CheckIn> findByBookingId(Long bookingId) {
-        return jpaRepo.findByBookingId(bookingId)
+        return jpaRepo.findFirstByBookingIdOrderByIdDesc(bookingId)
                 .map(this::toDomain);
     }
 

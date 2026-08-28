@@ -234,6 +234,12 @@ services:
     container_name: notification-service
     ports:
       - "8085:8085"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: broker:29092
+    depends_on:
+      kafka:
+        condition: service_started
     networks:
       - observability
 
