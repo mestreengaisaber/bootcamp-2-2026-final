@@ -22,6 +22,7 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.servlet.function.RequestPredicates;
 import org.springframework.web.servlet.function.RouterFunction;
@@ -38,8 +39,28 @@ import java.util.Collection;
 @EnableWebSecurity
 public class SecurityConfig {
 
+    /**
+     * Cadena 1 (orden alto): solo actuator. Sin OAuth2, sin JWT.
+     * Prometheus, Grafana y cualquier monitor pueden raspar métricas
+     * sin necesidad de token. El endpoint NO expone datos sensibles
+     * porque solo están habilitados health, info, prometheus y metrics.
+     */
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    @Order(1)
+    public SecurityFilterChain actuatorSecurityFilterChain(HttpSecurity http) throws Exception {
+        return http
+                .securityMatcher("/actuator/**")
+                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
+                .build();
+    }
+
+    /**
+     * Cadena 2 (orden bajo): todo lo que no es actuator.
+     * Requiere JWT válido para acceder a las APIs.
+     */
+    @Bean
+    @Order(2)
+    public SecurityFilterChain apiSecurityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(s -> s.sessionCreationPolicy(
