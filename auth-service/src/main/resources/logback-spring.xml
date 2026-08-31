@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+  <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+
+  <!-- Appender de consola con traceId/spanId incluidos -->
+  <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>
+        %d{HH:mm:ss.SSS} [%thread] %-5level [%X{traceId},%X{spanId}] %logger{30} - %msg%n
+      </pattern>
+    </encoder>
+  </appender>
+
+  <!-- Appender JSON para producción (Loki/ELK) -->
+  <appender name="JSON" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+      <!-- Incluye traceId/spanId automáticamente en el JSON -->
+      <includeMdcKeyName>traceId</includeMdcKeyName>
+      <includeMdcKeyName>spanId</includeMdcKeyName>
+      <customFields>{"service":"${spring.application.name}","env":"${APP_ENV:-local}"}</customFields>
+    </encoder>
+  </appender>
+
+  <!-- Perfil local: logs legibles -->
+  <springProfile name="local,default">
+    <root level="INFO"><appender-ref ref="CONSOLE"/></root>
+  </springProfile>
+
+  <!-- Perfil docker/producción: logs JSON -->
+  <springProfile name="docker,prod">
+    <root level="INFO"><appender-ref ref="JSON"/></root>
+  </springProfile>
+</configuration>
