@@ -67,6 +67,7 @@ public class SecurityConfig {
                         SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/v1/auth/**").permitAll()
+                        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         .requestMatchers(HttpMethod.GET,  "/api/v1/flights/**").hasAnyRole("PASSENGER", "AGENT", "ADMIN", "USER")
                         .requestMatchers(HttpMethod.POST, "/api/v1/bookings").hasAnyRole("PASSENGER", "AGENT", "ADMIN", "USER")
                         .requestMatchers(HttpMethod.GET,  "/api/v1/bookings").hasAnyRole("AGENT", "ADMIN", "USER")
