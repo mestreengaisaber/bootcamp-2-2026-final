@@ -12,8 +12,6 @@ El objetivo es simular cómo se construyen sistemas backend modernos en empresas
 * Transacciones distribuidas (Saga Pattern)
 * Seguridad con JWT y control de roles
 
-> ⚠️ Este proyecto es **100% práctico**. Aquí no hay teoría innecesaria: construyes un sistema real de principio a fin.
-
 ---
 
 ## Alcance del MVP (2 semanas)
@@ -189,13 +187,3 @@ Una funcionalidad se considera terminada cuando:
 * No hay estados inconsistentes
 * Ha sido revisada
 
----
-
-## Objetivo Final
-
-Al completar este proyecto serás capaz de:
-
-* Entender cómo se construyen sistemas backend reales
-* Trabajar con microservicios y eventos
-* Implementar patrones de arquitectura usados en producción
-* Tener un proyecto sólido para tu portfolio
